@@ -1,7 +1,7 @@
 // ignore_for_file: prefer_const_constructors, unnecessary_new
 
 import 'package:flutter/material.dart';
-import 'package:rest_dragonball/personajeDragonBall.dart';
+import 'package:rest_dragon_ball/personajeDragonBall.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -90,7 +90,9 @@ class _MyAppState extends State<MyApp> {
               elevation: 5.0,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(30),
                       bottomRight: Radius.circular(30),
+                      topLeft: Radius.circular(30),
                       topRight: Radius.circular(30))),
               child: new Container(
                 padding: new EdgeInsets.all(50.0),

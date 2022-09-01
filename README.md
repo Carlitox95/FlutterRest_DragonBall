@@ -1,7 +1,6 @@
-# FlutterRest_DragonBall
+# rest_dragon_ball
 
-
-APP Mobile en Flutter pegandole a una Api Rest y renderizando el contenido en un Widget
+A new Flutter project.
 
 ## Getting Started
 

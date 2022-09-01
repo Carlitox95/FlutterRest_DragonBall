@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.app_curso_yt">
+    package="com.example.rest_dragon_ball">
    <application
-        android:label="app_curso_yt"
+        android:label="rest_dragon_ball"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

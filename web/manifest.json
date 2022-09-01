@@ -1,6 +1,6 @@
 {
-    "name": "app_curso_yt",
-    "short_name": "app_curso_yt",
+    "name": "rest_dragon_ball",
+    "short_name": "rest_dragon_ball",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
