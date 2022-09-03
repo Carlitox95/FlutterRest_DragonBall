@@ -1,31 +1,47 @@
-// ignore_for_file: prefer_const_constructors, unnecessary_new
+// ignore_for_file: prefer_const_constructors, unnecessary_new, must_be_immutable
 
 import 'package:flutter/material.dart';
-import 'package:rest_dragon_ball/personajeDragonBall.dart';
+import 'package:rest_dragon_ball/clases/personajeDragonBall.dart';
+import 'package:rest_dragon_ball/paginas/paginaHome.dart';
+import 'package:rest_dragon_ball/paginas/paginaPersonajes.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:developer';
+
+import 'main.dart';
 
 //Aplicacion para iniciar la App
 void main() => runApp(new MyApp());
 
+//La aplicacion admite estados por eso es "StatefullWidget"
 class MyApp extends StatefulWidget {
   @override
+  // ignore: library_private_types_in_public_api
   _MyAppState createState() => _MyAppState();
 }
 
-//Clase Principal
+//Clase de estado principal
 class _MyAppState extends State<MyApp> {
   //Defino una lista para los datos que recolecto de la Api
   List<personajeDragonBall> arrayPersonajes = [];
+  //Defino una variable para almacenar la pagina activa
+  int _paginaActual = 0;
 
-  //Al iniciar la App indico que dispare la funcion para la api
-  @override
+  //De forma inicial vamos a ejecutar la funcion..
   void initState() {
-    loadApiRest();
+    getApiPersonajes();
   }
 
+  //Lista de Widgets para las paginas que tengo
+  late final List<Widget> _paginas = [
+    PaginaHome(),
+    PaginaPersonajesDB(
+      arrayPersonajes: arrayPersonajes,
+    )
+  ];
+
   //Funcion para cargar los datos de la Api
-  loadApiRest() async {
+  getApiPersonajes() async {
     //Defino el response
     var response = await http.get(
         Uri.parse('https://dragon-ball-super-api.herokuapp.com/api/characters'),
@@ -37,6 +53,7 @@ class _MyAppState extends State<MyApp> {
       //Me guardo el Json response
       var jsonBody = json.decode(responeBody);
       //Itero sobre cada dato obtenido de mi response
+      //inspect(json.decode(responeBody));
       for (var data in jsonBody) {
         //Por cada dato obtenido agrego un modelo mas a la lista de modelos
         arrayPersonajes.add(
@@ -50,104 +67,36 @@ class _MyAppState extends State<MyApp> {
                 data['status'],
                 data['originplanet']));
       }
-      setState(() {});
-      arrayPersonajes.forEach((someData) => print("Name : ${someData.name}"));
     } else {
-      print('Algo salio mal che');
+      print('Error en el Response');
     }
   }
 
-  //Defino el Widget Constructor
+  //Defino el Widget Constructor principal
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
+        debugShowCheckedModeBanner: false,
         home: new Scaffold(
-      appBar: new AppBar(
-        title: new Text('Flutter API Response - Carlitox'),
-      ),
-      //Si el array esta vacio, muestro la pantalla de carga..
-      body: arrayPersonajes.isEmpty
-          ? new Center(
-              child: new CircularProgressIndicator(),
-            )
-          : renderizarPersonajesObtenidos(),
-    ));
-  }
-
-  //Definimos el Widget para mostrar los personajes
-  Widget renderizarPersonajesObtenidos() {
-    //Creo una lista de vistas
-    return new ListView.builder(
-        //El limite estara dado por el tam maximo del response de personajes
-        itemCount: arrayPersonajes.length,
-        itemBuilder: (_, index) {
-          //Retorno un Container principal
-          return new Container(
-            //Le doy margenes a los contenedores..
-            margin: new EdgeInsets.symmetric(vertical: 20.0, horizontal: 30.0),
-            //Cada personaje sera una Card..
-            child: new Card(
-              elevation: 5.0,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(30),
-                      bottomRight: Radius.circular(30),
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30))),
-              child: new Container(
-                padding: new EdgeInsets.all(50.0),
-                child: new Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  //En los elementos hijos diseño la estructura
-                  children: <Widget>[
-                    //Nombre del Personaje
-                    Container(
-                      padding: EdgeInsets.all(20.0),
-                      child: Center(
-                          child: Text(
-                        arrayPersonajes[index].name,
-                        style: TextStyle(
-                            fontSize: 30, fontWeight: FontWeight.bold),
-                      )),
-                    ),
-                    //Imagen del Personaje
-                    Container(
-                      padding: EdgeInsets.all(30.0),
-                      child: Image.network(arrayPersonajes[index].imageUrl),
-                    ),
-                    //Especie del personaje
-                    Container(
-                      padding: EdgeInsets.all(20.0),
-                      child: Center(
-                          child: Text(
-                        arrayPersonajes[index].specie,
-                        style: TextStyle(fontSize: 16),
-                      )),
-                    ),
-                    //Universo del Personaje
-                    Container(
-                      padding: EdgeInsets.all(20.0),
-                      child: Center(
-                          child: Text(
-                        arrayPersonajes[index].universe,
-                        style: TextStyle(fontSize: 16),
-                      )),
-                    ),
-                    //Planeta de Origen
-                    Container(
-                      padding: EdgeInsets.all(20.0),
-                      child: Center(
-                          child: Text(
-                        arrayPersonajes[index].originplanet,
-                        style: TextStyle(fontSize: 16),
-                      )),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        });
+          appBar: new AppBar(
+            title: new Text('Flutter API Response - Carlitox'),
+          ),
+          //Le paso al array de paginas el nro de pagina actual a renderizar..
+          body: _paginas[_paginaActual],
+          bottomNavigationBar: BottomNavigationBar(
+            onTap: (index) {
+              setState(() {
+                _paginaActual = index;
+              });
+            },
+            currentIndex: _paginaActual,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.image_search_rounded),
+                  label: "Personajes Api")
+            ],
+          ),
+        ));
   }
 }
